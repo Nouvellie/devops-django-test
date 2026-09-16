@@ -89,8 +89,8 @@ localhost/metrics
 mkdir -p prometheus loki promtail grafana/provisioning/datasources
 ## YMLs
 prometheus/prometheus.yml
-loki/loki-config.yml
-promtail/promtail-config.yml
+loki/loki-config.yaml
+promtail/promtail-config.yaml
 grafana/provisioning/datasources/datasources.yaml
 
 # Docker compose (prometheus, loki, promptail and grafana)
