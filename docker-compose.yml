@@ -23,7 +23,7 @@ services:
     build: .
     container_name: celery_worker
     restart: always
-    command: celery -A core worker -l info
+    command: celery -A core worker -l info -E
     env_file:
       - .env
     environment:
@@ -32,6 +32,7 @@ services:
       - REDIS_URL=redis://redis:6379/1
       - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=${REDIS_URL}
+    hostname: worker-1
     depends_on:
       - web
       - redis
