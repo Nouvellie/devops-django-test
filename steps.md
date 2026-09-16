@@ -79,3 +79,8 @@ for i in {1..5}; do curl -s -X POST http://localhost/api/trigger/ -w "\n"; done
 
 # Check queue item status
 curl -s http://localhost/api/status/<queue_id>/ -w "\n"
+
+# Prometheus 
+add on settings/urls ("")
+## Access
+localhost/metrics

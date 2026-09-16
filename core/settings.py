@@ -11,14 +11,15 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "rest_framework",
-    # "django_prometheus",
+    "django_prometheus", # Before apps or top
     "api",
 ]
 
 MIDDLEWARE = [
-    # "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusBeforeMiddleware", # <-- Must be the first
+    "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware", # <-- Must be the last
 ]
 
 ROOT_URLCONF = "core.urls"
