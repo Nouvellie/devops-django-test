@@ -56,3 +56,15 @@ localhost:15672
 
 # Docker compose (celery)
 update docker-compose.yml
+
+# Celery
+- Create celery.py
+- Update init.py
+- Update settings.py
+
+# Docker compose (Flower)
+RabbitMQ monitor
+update docker-compose.yml
+
+# Docker Build
+docker compose up --build -d
