@@ -17,7 +17,7 @@ spec:
           image: mher/flower
           env:
             - name: CELERY_BROKER_URL
-              value: "amqp://admin:password123@rabbitmq-service:5672//"
+              value: "amqp://nouveadmin:adminnouve@rabbitmq-service:5672//"
           ports:
             - containerPort: 5555
 ---

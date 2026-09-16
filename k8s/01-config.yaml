@@ -16,4 +16,4 @@ type: Opaque
 stringData:
   RABBITMQ_DEFAULT_USER: "nouveadmin"
   RABBITMQ_DEFAULT_PASS: "adminnouve"
-  CELERY_BROKER_URL: "amqp://admin:password123@rabbitmq-service:5672//"
+  CELERY_BROKER_URL: "amqp://nouveadmin:adminnouve@rabbitmq-service:5672//"

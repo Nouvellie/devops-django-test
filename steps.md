@@ -201,7 +201,10 @@ kubectl wait --namespace ingress-nginx \
   --timeout=90s
 
 # Metric server fix (must be)
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl apply -f k8s/
 kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
 ## Check
 kubectl top nodes
+
+# DELETE KIND
+kind delete cluster
