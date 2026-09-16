@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  REDIS_URL: "redis://redis-service:6379/1"
+  CELERY_RESULT_BACKEND: "redis://redis-service:6379/1"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+stringData:
+  RABBITMQ_DEFAULT_USER: "nouveadmin"
+  RABBITMQ_DEFAULT_PASS: "adminnouve"
+  CELERY_BROKER_URL: "amqp://admin:password123@rabbitmq-service:5672//"

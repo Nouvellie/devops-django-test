@@ -143,3 +143,13 @@ count_over_time({container="celery_worker"} |= "succeeded"[1m])
 # Grafana (django-dashboard)
 http://localhost:3000/dashboards
 new --> import --> 9528 
+
+# Kubernetes
+mkdir -p k8s
+k8s/01-config.yaml
+k8s/02-infrastructure.yaml
+k8s/03-django-api.yaml
+k8s/04-celery-worker.yaml
+k8s/05-ingress.yaml
+k8s/06-hpa-django.yaml
+k8s/07-hpa-celery.yaml
