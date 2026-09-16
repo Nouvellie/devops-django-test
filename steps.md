@@ -21,3 +21,15 @@ docker run -d --name test-django -p 8000:8000 devops-django:latest
 
 # If container error
 docker rm -f test-django
+
+# Create Nginx
+nginx/default.conf
+
+# Docker compose
+docker-compose.yml
+
+# Docker Build
+docker compose up --build -d
+
+# Check app
+localhost:80 / localhost
