@@ -78,4 +78,4 @@ docker compose logs --tail=50 web
 for i in {1..5}; do curl -s -X POST http://localhost/api/trigger/ -w "\n"; done
 
 # Check queue item status
-curl -s http://localhost/api/status/41e00bcc-fad9-4c31-aad6-fad4504d5c41/ -w "\n"
+curl -s http://localhost/api/status/<queue_id>/ -w "\n"
