@@ -25,11 +25,34 @@ docker rm -f test-django
 # Create Nginx
 nginx/default.conf
 
-# Docker compose
-docker-compose.yml
+# Docker compose (nginx)
+update docker-compose.yml
 
 # Docker Build
 docker compose up --build -d
 
+# Docker check
+docker ps
+
 # Check app
 localhost:80 / localhost
+
+# Docker compose (Redis/RabbitMQ)
+update docker-compose.yml
+
+# Docker Build
+docker compose up --build -d
+
+# Docker check
+docker ps
+
+# Reset volume if guest/guest error 
+docker compose down -v
+docker compose down
+docker compose up --build -d
+
+# Check RabbitMQ
+localhost:15672
+
+# Docker compose (celery)
+update docker-compose.yml
