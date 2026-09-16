@@ -77,8 +77,5 @@ docker compose logs --tail=50 web
 # Queue check
 for i in {1..5}; do curl -s -X POST http://localhost/api/trigger/ -w "\n"; done
 
-
-# Prometheus 
-add on settings/urls ("")
-## Access
-localhost/metrics
+# Check queue item status
+curl -s http://localhost/api/status/<TASK_ID>/ -w "\n"
