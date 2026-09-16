@@ -49,3 +49,8 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+positions.yaml
+*.db
+/loki/chunks
+/loki/tsdb-shipper-active
