@@ -29,9 +29,9 @@ services:
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
-      - REDIS_URL=redis://redis:6379/1
+      - REDIS_URL=${REDIS}
       - CELERY_BROKER_URL=amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672//
-      - CELERY_RESULT_BACKEND=${REDIS_URL}
+      - CELERY_RESULT_BACKEND=${REDIS}
     hostname: worker-1
     depends_on:
       - web
