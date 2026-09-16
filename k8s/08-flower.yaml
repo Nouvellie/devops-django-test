@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-flower
+  template:
+    metadata:
+      labels:
+        app: celery-flower
+    spec:
+      containers:
+        - name: flower
+          image: mher/flower
+          env:
+            - name: CELERY_BROKER_URL
+              value: "amqp://admin:password123@rabbitmq-service:5672//"
+          ports:
+            - containerPort: 5555
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower-service
+spec:
+  type: ClusterIP
+  selector:
+    app: celery-flower
+  ports:
+    - port: 5555
+      targetPort: 5555

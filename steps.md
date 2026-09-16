@@ -93,6 +93,15 @@ loki/loki-config.yaml
 promtail/promtail-config.yaml
 grafana/provisioning/datasources/datasources.yaml
 
+# Nginx for kind
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+## CODE
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+kubectl get pods -n ingress-nginx
+
 # Docker compose (prometheus, loki, promptail and grafana)
 update docker-compose.yml
 

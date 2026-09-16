@@ -16,7 +16,7 @@ spec:
         - name: worker
           image: devops-django-web:latest
           imagePullPolicy: Never
-          command: ["celery", "-A", "core", "worker", "-l", "info"]
+          command: ["celery", "-A", "core", "worker", "-l", "info", "--uid=nobody"]
           envFrom:
             - configMapRef:
                 name: app-config
