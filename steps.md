@@ -68,3 +68,6 @@ update docker-compose.yml
 
 # Docker Build
 docker compose up --build -d
+
+# Flower check
+localhost:5555
