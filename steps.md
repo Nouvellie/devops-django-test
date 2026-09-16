@@ -4,11 +4,6 @@ django-admin startproject core .
 # Create api v1
 only urls/views file
 
-# Prometheus 
-add on settings/urls ("")
-## Access
-localhost/metrics
-
 # Create Dockerfile
 only for django proyect
 
@@ -73,3 +68,12 @@ docker compose up --build -d
 
 # Flower check
 localhost:5555
+
+# Check errors
+docker compose logs --tail=50 web
+
+
+# Prometheus 
+add on settings/urls ("")
+## Access
+localhost/metrics
