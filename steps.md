@@ -74,7 +74,7 @@ docker compose restart flower
 # Check errors (web --> docker-compose-name)
 docker compose logs --tail=50 web
 
-# Test RabbitMQ
+# Queue check
 for i in {1..5}; do curl -s -X POST http://localhost/api/trigger/ -w "\n"; done
 
 
