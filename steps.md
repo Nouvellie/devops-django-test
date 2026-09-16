@@ -58,9 +58,11 @@ localhost:15672
 update docker-compose.yml
 
 # Celery
-- Create celery.py
-- Update init.py
-- Update settings.py
+- Create core/celery.py
+- Create api/tasks.py
+- Update api/views.py
+- Update core/init.py
+- Update core/settings.py
 
 # Docker compose (Flower)
 RabbitMQ monitor
