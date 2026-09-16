@@ -84,3 +84,14 @@ curl -s http://localhost/api/status/<queue_id>/ -w "\n"
 add on settings/urls ("")
 ## Access
 localhost/metrics
+
+# Folders (prometheus, loki, promptail and grafana)
+mkdir -p prometheus loki promtail grafana/provisioning/datasources
+## YMLs
+prometheus/prometheus.yml
+loki/loki-config.yml
+promtail/promtail-config.yml
+grafana/provisioning/datasources/datasources.yaml
+
+# Docker compose (prometheus, loki, promptail and grafana)
+update docker-compose.yml
