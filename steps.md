@@ -153,6 +153,9 @@ count_over_time({container="celery_worker"} |= "succeeded"[1m])
 http://localhost:3000/dashboards
 new --> import --> 9528 
 
+# cAdvisor
+http://localhost:8080 
+
 # Kubernetes
 mkdir -p k8s
 k8s/01-config.yaml
