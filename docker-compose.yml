@@ -143,6 +143,21 @@ services:
       - prometheus
       - loki
   
+  # cAdvisor para monitoreo de contenedores en Docker
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - redis
+  
 volumes:
   prometheus_data:
   grafana_data:

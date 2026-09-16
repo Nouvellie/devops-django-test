@@ -190,6 +190,7 @@ EOF
 docker compose down
 
 # Start k8s
+docker compose up --build -d
 kind create cluster --config kind-config.yaml
 
 # Install Nginx Ingress Controller
@@ -201,10 +202,30 @@ kubectl wait --namespace ingress-nginx \
   --timeout=90s
 
 # Metric server fix (must be)
-kubectl apply -f k8s/
+kubectl apply -f k8s/kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 kubectl patch deployment metrics-server -n kube-system --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+kubectl port-forward svc/flower-service 5555:5555 > /dev/null 2>&1 &
+
 ## Check
 kubectl top nodes
+kubectl get pods
 
 # DELETE KIND
 kind delete cluster
+
+# Helm came with Cadvisor (prometheus, grafana)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+## Install
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --set grafana.adminPassword=admin
+## Check component creation
+kubectl get pods -n monitoring -w
+## Enter grafana
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+## Dashboard
+Kubernetes / Compute Resources / Namespace (Pods)
+Kubernetes / Compute Resources / Node (Pods)
