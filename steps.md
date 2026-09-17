@@ -232,3 +232,29 @@ kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
 ## Dashboard
 Kubernetes / Compute Resources / Namespace (Pods)
 Kubernetes / Compute Resources / Node (Pods)
+## Apply pods (update changes on k8s)
+kubectl apply -f k8s/
+## Apply specific pods
+kubectl apply -f k8s/05-ingress.yaml
+## Flower for kube
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80 > /dev/null 2>&1 &
+
+# Django modified
+## New img
+docker build -t devops-django-web:latest .
+## Load kind
+kind load docker-image devops-django-web:latest
+## Reload 
+kubectl rollout restart deployment/django-api
+
+# Grafana fix on kube
+kubectl create namespace monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
+## Assign usr/pwd
+helm upgrade prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring --reuse-values --set grafana.adminUser="user" --set grafana.adminPassword="password"
+## Open grafana
+kubectl port-forward -n monitoring svc/prometheus-stack-grafana 3000:80 > /dev/null 2>&1 &
+## Close grafana
+pkill -f "port-forward"

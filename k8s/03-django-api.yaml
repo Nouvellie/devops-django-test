@@ -12,6 +12,16 @@ spec:
       labels:
         app: django-api
     spec:
+      initContainers:
+        - name: db-migrations
+          image: devops-django-web:latest
+          imagePullPolicy: Never
+          command: ["python", "manage.py", "migrate"]
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
       containers:
         - name: web
           image: devops-django-web:latest
