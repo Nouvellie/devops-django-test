@@ -6,6 +6,7 @@ services:
     build: .
     container_name: django_web
     restart: always
+    command: sh -c "python manage.py migrate && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
@@ -57,6 +58,8 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   # RabbitMQ Service (Message Broker for Celery)
   rabbitmq:
@@ -71,6 +74,8 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
   # Flower Web UI for Celery Monitoring
   flower:
@@ -143,7 +148,7 @@ services:
       - prometheus
       - loki
   
-  # cAdvisor para monitoreo de contenedores en Docker
+  # cAdvisor Docker monitor
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -161,3 +166,5 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  redis_data:
+  rabbitmq_data:
