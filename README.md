@@ -1,17 +1,17 @@
-# Production-Grade DevOps Django API & Kubernetes Infrastructure
+# Production-Grade DevOps Django API, Kubernetes & Terraform Infrastructure
 
 [![CI Pipeline](https://github.com/your-username/devops-django-api/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/devops-django-api/actions)
 [![Kubernetes](https://img.shields.io/badge/kubernetes-v1.30-blue.svg)](https://kubernetes.io/)
 [![Terraform](https://img.shields.io/badge/terraform-AWS%20EKS-purple.svg)](https://www.terraform.io/)
 [![Python](https://img.shields.io/badge/python-3.12%20%7C%203.14-blue.svg)](https://www.python.org/)
 
-An enterprise-grade, event-driven REST API engineered with **Django REST Framework**, containerized with **Docker**, and orchestrated across **Docker Compose**, **Kubernetes (Kind)**, and **Terraform (AWS EKS)**. Built with asynchronous task execution via **Celery** and **RabbitMQ**, caching through **Redis**, ingress routing via **Nginx**, and full-spectrum telemetry powered by **Prometheus**, **Loki**, **Promtail/Alloy**, and **Grafana**.
+An enterprise-grade, event-driven REST API engineered with **Django REST Framework**, containerized with **Docker**, orchestrated across **Docker Compose** and **Kubernetes (Kind & AWS EKS)**, and provisioned declaratively using **Terraform**. Built with asynchronous execution via **Celery** and **RabbitMQ**, key-value caching with **Redis**, reverse proxy routing with **Nginx**, and full-spectrum telemetry powered by **Prometheus**, **Loki**, **Promtail/Alloy**, and **Grafana**.
 
 ---
 
 ## 1. System Architecture
 
-The infrastructure implements a decoupled, event-driven pattern isolating synchronous HTTP transactions from compute-heavy background processing, backed by a unified telemetry pipeline.
+The infrastructure implements a decoupled, event-driven architecture isolating compute-heavy background workloads from the synchronous HTTP request-response cycle, backed by automated cloud provisioning and telemetry.
 
 ```text
                                     ┌─────────────────────────────────────────────────────────────┐
@@ -58,6 +58,13 @@ The infrastructure implements a decoupled, event-driven pattern isolating synchr
 │             ▼
 │         [ Redis ] (Result Backend & Cache - Port :6379)
 └─────────────────────────────────────────────────────────┘
+                            ▲
+                            │ Provisions & Manages AWS EKS / VPC
+                            │
+┌─────────────────────────────────────────────────────────┐
+│               Terraform Infrastructure as Code          │
+│   [ VPC Module ] ──► [ AWS EKS Cluster ] ──► [ Nodes ]  │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -67,16 +74,16 @@ The infrastructure implements a decoupled, event-driven pattern isolating synchr
 | Architectural Layer | Technologies | Core Functionality |
 | :--- | :--- | :--- |
 | **Application Runtime** | Python, Django, DRF, Gunicorn | Synchronous REST endpoints, serialization, WSGI process model. |
-| **Asynchronous Engine** | Celery, RabbitMQ, Redis | AMQP message broker, asynchronous task workers, key-value state store. |
-| **Worker Monitoring** | Celery Flower | Real-time broker inspection, task lifecycle auditing, worker stats. |
-| **Ingress & Gateway** | Nginx, Nginx Ingress Controller | Reverse proxying, TLS termination, path routing, upstream keepalive. |
-| **Metrics Telemetry** | Prometheus, `django-prometheus`, cAdvisor | Pull-based time-series scraping, container runtime metrics. |
-| **Log Aggregation** | Grafana Loki, Promtail, Grafana Alloy | Docker stdout/stderr collection, label indexing, LogQL stream queries. |
-| **Visualization & Alerts** | Grafana, Alertmanager | Unified dashboards (ID: `9528`), Prometheus/Loki query correlation. |
-| **Local Orchestration** | Docker Compose, Kind (Kubernetes-in-Docker) | Multi-container composition, local cluster emulation with ingress mappings. |
-| **Cluster Autoscaling** | Kubernetes HPA (v2), Metrics Server | Dynamic pod scaling targeting CPU (70%) and Memory (80%) thresholds. |
-| **Infrastructure as Code** | Terraform, Kubernetes Manifests | Declarative AWS EKS cluster, VPC topologies, declarative YAML blueprints. |
-| **Testing & CI/CD** | Pytest, GitHub Actions, Docker Buildx | Automated test matrices, linting, multi-platform image compilation. |
+| **Asynchronous Engine** | Celery, RabbitMQ, Redis | AMQP message broker, background task workers, in-memory state store. |
+| **Worker Telemetry** | Celery Flower | Broker inspection, task lifecycle tracking, worker health metrics. |
+| **Routing & Ingress** | Nginx, Nginx Ingress Controller | Static asset handling, reverse proxy, path-based load routing. |
+| **Metrics Pipeline** | Prometheus, `django-prometheus`, cAdvisor | Pull-based metrics scraping, container runtime resource tracking. |
+| **Log Management** | Grafana Loki, Promtail, Grafana Alloy | Docker stdout/stderr collection, label indexing, LogQL stream engine. |
+| **Alerting & Dashboards**| Grafana, Alertmanager | Unified metrics visualization (Dashboard ID: `9528`), threshold alerting. |
+| **Local Orchestration** | Docker Compose, Kind | Local multi-container dev, cluster emulation with ingress mappings. |
+| **Cluster Autoscaling** | Kubernetes HPA (v2), Metrics Server | Automatic pod scaling based on CPU (70%) and Memory (80%) thresholds. |
+| **Cloud Provisioning** | Terraform (AWS Provider, VPC, EKS) | Declarative cloud IaC for VPC networks, subnets, and EKS clusters. |
+| **Testing & CI/CD** | Pytest, GitHub Actions, Docker Buildx | Automated linting, test suites, multi-arch container compilation. |
 
 ---
 
@@ -84,29 +91,31 @@ The infrastructure implements a decoupled, event-driven pattern isolating synchr
 
 ```text
 .
-├── .github/workflows/ci.yml           # Automated Pytest execution & Docker Buildx matrix
+├── .github/workflows/ci.yml           # Automated Pytest suite & Docker Buildx pipeline
 ├── core/                              # Django project configuration (settings, wsgi, celery)
 ├── api/                               # Primary DRF app (tasks, views, urls, serializers)
-├── k8s/                               # Declarative Kubernetes manifests
+├── k8s/                               # Declarative Kubernetes blueprints
 │   ├── 00-namespace.yaml              # Dedicated namespace (devops-django)
 │   ├── 01-config.yaml                 # ConfigMaps and Base64 operational Secrets
 │   ├── 02-infrastructure.yaml         # Redis & RabbitMQ Deployments, Services, and PVCs
 │   ├── 03-django-api.yaml             # Django Gunicorn API deployment with migration initContainer
-│   ├── 04-celery-worker.yaml          # Asynchronous worker deployment and execution engine
+│   ├── 04-celery-worker.yaml          # Asynchronous Celery worker deployment
 │   ├── 05-ingress.yaml                # Ingress routing rules mapping root (/) and /flower
 │   ├── 06-hpa-django.yaml             # Horizontal Pod Autoscaler for Django API (Min: 2, Max: 4)
 │   └── 07-hpa-celery.yaml             # Horizontal Pod Autoscaler for Celery Worker (Min: 2, Max: 4)
 ├── nginx/                             # Docker Compose reverse-proxy configurations
 │   └── default.conf                   # Upstream routing to Gunicorn
-├── observability/                     # Prometheus targets, alerting rules, and log pipelines
+├── observability/                 # Prometheus targets, alerting rules, and log pipelines
 │   ├── prometheus/prometheus.yml      # Scrape configurations
-│   ├── loki/loki-config.yaml          # Ingestion and storage retention definitions
+│   ├── loki/loki-config.yaml          # Log ingestion and retention definitions
 │   ├── promtail/promtail-config.yaml  # Docker socket harvesting and pipeline stages
 │   └── grafana/provisioning/          # Auto-provisioned datasources and dashboards
-├── terraform/                         # Enterprise cloud provisioning
-│   ├── main.tf                        # AWS VPC & EKS cluster module definition (K8s v1.30)
-│   ├── variables.tf                   # Parameterized subnet cidrs and instance node groups
-│   └── outputs.tf                     # EKS cluster endpoints and kubeconfig outputs
+├── terraform/                         # Enterprise Infrastructure as Code (AWS)
+│   ├── versions.tf                    # Terraform, AWS, and Kubernetes provider constraints
+│   ├── vpc.tf                         # VPC topology, subnets, NAT Gateways, and route tables
+│   ├── eks.tf                         # AWS EKS cluster, node groups, and IAM roles
+│   ├── variables.tf                   # Parameterized inputs (regions, CIDR blocks, node types)
+│   └── outputs.tf                     # EKS endpoints, cluster name, and kubeconfig command
 ├── tests/                             # Pytest suite isolating HTTP and task dispatching
 ├── docker-compose.yml                 # Local multi-container development environment
 ├── Dockerfile                         # Production multi-stage container definition
@@ -118,7 +127,7 @@ The infrastructure implements a decoupled, event-driven pattern isolating synchr
 
 ## 4. Phase-by-Phase Operational Runbook
 
-### Phase 1: Local Application & Docker Containerization
+### Phase 1: Local Django & Docker Foundation
 
 ```bash
 # 1. Initialize project structure
@@ -132,7 +141,7 @@ pip freeze > requirements.txt
 docker build -t devops-django:latest .
 docker run -d --name test-django -p 8000:8000 devops-django:latest
 
-# 4. Verify and clean up container
+# 4. Clean up test container
 docker rm -f test-django
 ```
 
@@ -144,7 +153,7 @@ docker rm -f test-django
 # 1. Launch web, proxy, and message brokers in detached mode
 docker compose up --build -d
 
-# 2. Check runtime container health
+# 2. Verify runtime container health
 docker compose ps
 ```
 
@@ -346,7 +355,167 @@ kubectl port-forward svc/flower-service 5555:5555 > /dev/null 2>&1 &
 
 ---
 
-### Phase 7: Verification & Testing Suite
+### Phase 7: Cloud Provisioning with Terraform (AWS EKS)
+
+The `terraform/` directory transitions the declarative architecture from local Kind clusters to a production AWS environment.
+
+#### 1. Terraform Core Definitions
+
+**`terraform/versions.tf`**
+```hcl
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.30"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+}
+```
+
+**`terraform/variables.tf`**
+```hcl
+variable "aws_region" {
+  description = "Target AWS deployment region"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "cluster_name" {
+  description = "EKS Cluster identifier"
+  type        = string
+  default     = "devops-django-eks"
+}
+
+variable "vpc_cidr" {
+  description = "Base VPC CIDR block"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+```
+
+**`terraform/vpc.tf`**
+```hcl
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = "${var.cluster_name}-vpc"
+  cidr = var.vpc_cidr
+
+  azs             = ["${var.aws_region}a", "${var.aws_region}b"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24"]
+
+  enable_nat_gateway   = true
+  single_nat_gateway   = true
+  enable_dns_hostnames = true
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb"                      = "1"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/role/internal-elb"             = "1"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  }
+}
+```
+
+**`terraform/eks.tf`**
+```hcl
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = var.cluster_name
+  cluster_version = "1.30"
+
+  cluster_endpoint_public_access = true
+
+  vpc_id                   = module.vpc.vpc_id
+  subnet_ids               = module.vpc.private_subnets
+  control_plane_subnet_ids = module.vpc.private_subnets
+
+  eks_managed_node_groups = {
+    workers = {
+      min_size     = 2
+      max_size     = 5
+      desired_size = 2
+
+      instance_types = ["t3.medium"]
+      capacity_type  = "ON_DEMAND"
+    }
+  }
+}
+```
+
+**`terraform/outputs.tf`**
+```hcl
+output "cluster_name" {
+  description = "EKS Cluster Name"
+  value       = module.eks.cluster_name
+}
+
+output "cluster_endpoint" {
+  description = "Kubernetes API server endpoint"
+  value       = module.eks.cluster_endpoint
+}
+
+output "configure_kubectl" {
+  description = "CLI command to update local kubeconfig"
+  value       = "aws eks update-kubeconfig --region ${var.aws_region} --name${module.eks.cluster_name}"
+}
+```
+
+#### 2. Provisioning & Connecting to EKS
+```bash
+cd terraform
+
+# Initialize providers and download modules
+terraform init
+
+# Validate configuration syntax
+terraform validate
+
+# Review execution plan
+terraform plan
+
+# Provision AWS VPC and EKS infrastructure
+terraform apply -auto-approve
+
+# Configure local kubectl to point to the new AWS EKS cluster
+aws eks update-kubeconfig --region us-east-1 --name devops-django-eks
+
+# Verify cluster connectivity
+kubectl get nodes
+```
+
+#### 3. Deploy Application Blueprints to EKS
+Once connected to EKS, apply the existing manifests directly to the cloud cluster:
+```bash
+cd ..
+
+# Deploy AWS Load Balancer Controller or Ingress Controller
+kubectl apply -f [https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml](https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/aws/deploy.yaml)
+
+# Apply the application stack to EKS
+kubectl apply -f k8s/
+```
+
+---
+
+### Phase 8: Verification & Telemetry Inspection
 
 ```bash
 # 1. Health Probe Verification
@@ -374,16 +543,17 @@ docker compose exec web pytest
 
 ---
 
-### Phase 8: Zero-Downtime Rolling Update Pipeline
+### Phase 9: Zero-Downtime Rolling Update Pipeline
 
-Execute this workflow to push code updates to the Kubernetes cluster without dropped requests:
+Execute this workflow to push code updates to the cluster without dropping requests:
 
 ```bash
 # 1. Compile the updated container image
 docker build -t devops-django-web:latest .
 
-# 2. Sideload the artifact directly into the Kind control-plane node
+# 2. Sideload into Kind (or push to AWS ECR for EKS deployments)
 kind load docker-image devops-django-web:latest --name devops-cluster
+# For AWS: docker tag devops-django-web:latest <ECR_URL>:latest && docker push <ECR_URL>:latest
 
 # 3. Trigger a rolling restart of the deployment
 kubectl rollout restart deployment/django-api
@@ -394,29 +564,7 @@ kubectl rollout status deployment/django-api
 
 ---
 
-## 5. Infrastructure as Code (Terraform AWS EKS)
-
-The `terraform/` directory provisions production AWS cloud topologies:
-* **VPC:** 2 Availability Zones with dedicated public and private subnet tiers.
-* **Gateways:** Single NAT Gateway for cost-effective private egress routing.
-* **EKS Cluster:** Managed Kubernetes `v1.30` with an auto-scaling Node Group (`t3.medium`, 2 to 5 instances).
-
-```bash
-cd terraform
-
-# Initialize providers and modules
-terraform init
-
-# Validate configuration syntax
-terraform validate
-
-# Review execution plan
-terraform plan
-```
-
----
-
-## 6. Teardown & Resource Decommissioning
+### Phase 10: Teardown & Resource Decommissioning
 
 ```bash
 # 1. Destroy Docker Compose containers, networks, and persistent storage volumes
@@ -427,4 +575,8 @@ pkill -f "port-forward"
 
 # 3. Delete the local Kind Kubernetes cluster
 kind delete cluster --name devops-cluster
+
+# 4. Destroy AWS cloud infrastructure provisioned by Terraform
+cd terraform
+terraform destroy -auto-approve
 ```
